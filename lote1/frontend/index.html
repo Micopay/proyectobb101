@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Papel cálido, igual que --color-fondo: la franja del sistema
+         continúa la hoja hacia arriba en vez de cortarla. -->
+    <meta name="theme-color" content="#f5f1e8" />
+    <title>MicoPay</title>
+    <!-- Las fuentes se sirven desde /fonts, no desde el CDN de Google: la app
+         asume red intermitente (cola offline, banner de conexión) y con la
+         tipografía en CDN se caía a system-ui y los iconos a texto crudo.
+         Ver @font-face en src/index.css. -->
+    <link rel="preload" href="/fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/material-symbols-subset.woff2" as="font" type="font/woff2" crossorigin>
+  </head>
+  <body class="bg-fondo text-tinta font-body min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
