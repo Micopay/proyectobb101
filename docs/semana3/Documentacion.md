@@ -83,20 +83,26 @@ La app también tiene pantallas para depositar efectivo (cash-in), pagar y cobra
 
 ## 2. Decisión técnica: contratos
 
-**Opción elegida:** [pendiente: A, B o A + B]
+**Opción elegida: A. Contrato propio.**
 
-Según el Blueprint (sección 8), la red se usa para tres cosas: retener los USDC en un escrow que nadie puede tocar, que cada persona controle su propia llave y dejar un historial público de intercambios por comercio. La decisión de esta semana separa dos piezas que antes estaban juntas:
+Según el Blueprint (sección 8), la red se usa para tres cosas: retener los USDC en un escrow que nadie puede tocar, que cada persona controle su propia llave y dejar un historial público de intercambios por comercio. La primera es la regla central del producto y es la que decide esta opción.
 
-**El escrow (lógica del intercambio).** Es la regla central del producto: bloquear los USDC, liberarlos al comercio cuando escanea el QR y devolverlos si vence el plazo. Ya existe un contrato propio en Soroban que hace esto en testnet, en el repositorio del protocolo (`micopay/contracts/escrow`). No conocemos ninguna herramienta del ecosistema que haga esta regla exacta (retención con QR de un solo uso, liberación en persona y devolución por tiempo) sin tener que adaptarla.
+**Qué hace el contrato.** Es un escrow en Soroban con tres operaciones:
 
-**La billetera del usuario (custodia y acceso).** Hoy la llave se genera en el teléfono y el usuario tiene que respaldar una llave secreta. Nuestra investigación marcó ese respaldo como la barrera más fuerte (V-4, V-22): perder la llave es el mayor miedo y el punto donde más gente abandona. En V-22, la recuperación con passkey o biometría (Face ID o huella respaldadas en iCloud o Google) se sintió más segura que una frase semilla. Para esta pieza estamos evaluando dos opciones del ecosistema:
+- **Bloquear:** al firmar la operación, los USDC del usuario quedan retenidos en el contrato junto con el comercio elegido, el monto y un plazo de vencimiento.
+- **Liberar:** cuando el comercio escanea el QR de un solo uso al entregar el efectivo, el contrato le transfiere los USDC. Solo puede liberarse una vez y solo al comercio de esa operación.
+- **Devolver:** si vence el plazo sin entrega, los USDC regresan al usuario sin que nadie tenga que aprobarlo.
+
+Cada intercambio queda registrado en la red con su estado (bloqueado, completado, devuelto), y de ahí sale el historial público del comercio que pide el MVP.
+
+**Por qué hace falta uno propio.** No encontramos una herramienta del ecosistema que haga esta regla exacta: retención atada a un QR de un solo uso, liberación en persona y devolución por tiempo. Adaptar un servicio genérico de pagos o de custodia significaría que un tercero retiene el dinero o que la regla vive en un servidor, y eso rompe la promesa del producto: que ni el usuario ni el comercio tengan que confiar primero en el otro, ni en nosotros. El equipo ya validó esta lógica con un contrato propio en testnet, con el que hicimos un retiro y un depósito de $500 MXN de punta a punta el 24 de septiembre y un ensayo del escrow en USDC el 7 de octubre.
+
+**Qué se descarta.** La opción B para el escrow, por lo anterior. Las herramientas del ecosistema sí tienen lugar en otra pieza, la billetera del usuario, que no define la lógica del intercambio. Nuestra investigación marcó el respaldo de la llave secreta como la barrera más fuerte (V-4, V-22), y para resolverlo evaluamos dos opciones que se integrarían con el contrato propio, no en su lugar:
 
 | Opción | Qué resuelve | Qué falta confirmar |
 | --- | --- | --- |
-| Smart wallets con passkeys (cuentas de contrato en Soroban, por ejemplo con passkey-kit) | Que el usuario entre y recupere su cuenta con la biometría de su teléfono, sin frase semilla. | Compatibilidad con el escrow actual, costo de despliegue por cuenta y soporte en Android con Capacitor. |
-| Pollar (SDK de onboarding y activación de billeteras para Stellar) | Login social o por correo, creación y activación de la cuenta con comisiones patrocinadas, y soporte para passkeys y smart accounts. | Modelo de custodia que usaríamos (propia o co-firmada), soporte para React con Capacitor, autorización para llamar a nuestro contrato de escrow y costo. |
-
-**Por qué y qué se descarta:** [pendiente: escribir cuando el equipo decida. Debe decir cuál opción se eligió para la billetera, por qué se descartó la otra y si se mantiene el contrato propio de escrow.]
+| Smart wallets con passkeys (cuentas de contrato en Soroban, por ejemplo con passkey-kit) | Que el usuario entre y recupere su cuenta con la biometría de su teléfono, sin frase semilla. | Compatibilidad con el escrow, costo de despliegue por cuenta y soporte en Android con Capacitor. |
+| Pollar (SDK de onboarding y activación de billeteras para Stellar) | Login social o por correo, creación y activación de la cuenta con comisiones patrocinadas, y soporte para passkeys y smart accounts. | Modelo de custodia (propia o co-firmada), soporte para React con Capacitor, autorización para llamar al escrow y costo. |
 
 ---
 
@@ -104,9 +110,9 @@ Según el Blueprint (sección 8), la red se usa para tres cosas: retener los USD
 
 | Integrante | Usuario de GitHub | Aporte en esta entrega |
 | --- | --- | --- |
-| Eric Mota Tejeda | [@ericmt-98](https://github.com/ericmt-98) | [pendiente] |
+| Eric Mota Tejeda | [@ericmt-98](https://github.com/ericmt-98) | Autor del prototipo en el que se basa el front y del contrato de escrow. Ordenó el front en `frontend/` para que se pueda ejecutar y redactó la decisión técnica. |
 | Raúl Vallejo | [@vallejoraul08-debug](https://github.com/vallejoraul08-debug) | [pendiente] |
-| Anna Medina | [pendiente] | [pendiente] |
+| Anna Medina | [@annapats](https://github.com/annapats) | Integró en el repositorio la documentación de la semana 3, las capturas de la app Android en testnet, el README y el front. |
 | José Alfredo Román Cruz | [pendiente] | [pendiente] |
 
 ---
