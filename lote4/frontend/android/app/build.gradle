@@ -1,0 +1,98 @@
+apply plugin: 'com.android.application'
+
+// versionCode a partir de la fecha/hora del build: AAMMDDHH.
+// Ejemplo: 26082416 = 2026-08-24, 16h.
+//
+// Por que asi y no un contador de commits: el contador depende de la rama, y
+// compilar desde una rama con menos historial generaria un numero MENOR que el
+// ya repartido, lo que impide instalar encima. La fecha siempre crece y es
+// independiente de la rama. Ademas identifica el build al dar soporte.
+//
+// Limite de Android: 2100000000. Este esquema llega a 99123123 en el ano 2099.
+// Granularidad de una hora: dos builds en la misma hora comparten numero, lo
+// cual es aceptable porque solo importa al repartir, no al compilar.
+// Se puede forzar con MICOPAY_VERSION_CODE para reproducir un build concreto.
+def computeVersionCode = { ->
+    def override = System.getenv('MICOPAY_VERSION_CODE')
+    if (override && override.isInteger()) {
+        return override.toInteger()
+    }
+    return new Date().format('yyMMddHH').toInteger()
+}
+
+android {
+    namespace = "com.micopay.app"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.micopay.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode computeVersionCode()
+        versionName "1.0.0"
+        resConfigs "es", "en"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        release {
+            def propsFile = rootProject.file('keystore.properties')
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(propsFile))
+                storeFile rootProject.file(props['storeFile'])
+                storePassword props['storePassword']
+                keyAlias props['keyAlias']
+                keyPassword props['keyPassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            ndk {
+                abiFilters "armeabi-v7a", "arm64-v8a"
+            }
+            def propsFile = rootProject.file('keystore.properties')
+            if (propsFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+        }
+        debug {
+            applicationIdSuffix ".debug"
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
