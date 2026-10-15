@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+/* MicoPay — capa de tokens de la app.
+   Dirección visual "Mercado / Rótulo", heredada del sitio
+   (Micopay/micopay-landig @ c6b395f, src/styles/mp-styles.css).
+   Plan: docs/PLAN_REDISENO_VISUAL_APK_2026-08.md
+
+   Dos reglas que cargan el producto:
+
+   1. El VERDE es lo digital (los saldos, los tokens). El NARANJA es el
+      efectivo y la acción. La conversión digital->efectivo la narra el
+      color, no una etiqueta.
+
+   2. Los dos son DIRECCIONALES. Cada miembro del par reprueba contraste
+      en el fondo del otro, así que NO son intercambiables:
+
+        fondo claro (papel/fondo)  ->  --color-verde          10.1:1
+                                       --color-naranja         5.13:1 papel · 4.63:1 fondo
+        fondo oscuro (tinta)       ->  --color-verde-brillo    7.62:1
+                                       --color-naranja-claro   5.80:1
+
+      Usar el miembro equivocado reprueba: naranja sobre tinta cae a 3.55
+      y naranja-claro sobre papel cae a 2.4.
+
+   Prohibido (era el sistema anterior y se quitó a propósito): gradientes,
+   glows, sombras difuminadas, radios grandes, tiles de ícono redondeados,
+   tarjetas dentro de tarjetas, negro puro y blanco frío. */
+
+/* Archivo (Omnibus-Type, OFL) — subset latin, variable con ejes wght Y wdth.
+   Empaquetada, NO desde CDN: la app tiene cola offline y banner de conexión,
+   así que asume red intermitente. Con la fuente en CDN, sin señal se cae a
+   system-ui y se pierde la jerarquía por ancho, que es de donde sale el
+   contraste tipográfico de este sistema (una sola familia, wdth 100 en
+   texto y 105-118 en títulos). */
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url("/fonts/archivo-latin-var.woff2") format("woff2");
+}
+
+/* Material Symbols — subset de los 214 nombres que aparecen en el código,
+   con los ejes FILL / wght / GRAD / opsz. El eje FILL lo usa BottomNav para
+   marcar la pestaña activa, así que no se puede aplanar.
+   Antes venía del CDN de Google: con la app sin señal, los 241 usos se
+   renderizaban como la palabra cruda ("qr_code_scanner" en vez del icono). */
+@font-face {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url("/fonts/material-symbols-subset.woff2") format("woff2");
+}
+
+/* `static` obliga a emitir TODAS las variables, no solo las que algún utility
+   usa. Sin esto Tailwind v4 las poda, y `var(--color-naranja)` resolvería a
+   vacío en los sitios que no pasan por una clase: los estilos inline y, sobre
+   todo, los marcadores que MapReal construye con element.style fuera de React.
+   Ese fallo no aparece en dev y sí en producción. */
+@theme static {
+  /* ── Verde: lo digital (USDC, MXNe, CETES, saldos) ── */
+  --color-verde: #0f4a33;
+  --color-verde-claro: #1a7a54;
+  --color-verde-brillo: #4fb98a;   /* el verde del lado OSCURO */
+  --color-verde-suave: #e4ede6;
+  --color-verde-borde: #bfd3c4;
+
+  /* ── Naranja: el efectivo y la acción ── */
+  --color-naranja: #c53c0a;        /* sobre CLARO */
+  --color-naranja-claro: #f2631f;  /* sobre OSCURO */
+  --color-naranja-suave: #fbe8dd;
+  --color-naranja-borde: #f0c3ab;
+
+  /* ── Tinta y papel: nunca negro puro, nunca blanco frío ── */
+  --color-tinta: #16130f;
+  --color-tinta-2: #241f19;
+  --color-tinta-3: #3d352b;
+  --color-fondo: #f5f1e8;
+  --color-papel: #fffdf8;
+
+  /* ── Grises cálidos ──
+     OJO: --color-gris-2 da 4.00:1 sobre papel y 3.60:1 sobre fondo.
+     NO usarlo para texto: solo separadores y gráficos (umbral 3:1).
+     Para texto secundario va --color-gris (7.74:1). Misma regla que el
+     sitio adoptó en 410b6d9. */
+  --color-gris: #57514a;
+  --color-gris-2: #857d71;
+  --color-gris-3: #a89f92;         /* solo sobre tinta: 7.19:1 */
+  --color-linea: #ddd5c4;
+  --color-linea-suave: #ebe4d6;
+
+  /* ── Estado ──
+     Ninguno inventado: son los que el sitio ya usaba de forma incidental.
+     Rojo de Contact.jsx (.ct-err / .ct-alerta); aviso de AvisoBeta.astro. */
+  --color-rojo: #c0392b;
+  --color-rojo-suave: #fdecec;
+  --color-aviso: #fff8e6;
+  --color-aviso-borde: #f0d99b;
+  --color-aviso-texto: #8a6417;
+
+  /* ── Tipografía: una sola familia. El contraste viene del ANCHO y el peso ── */
+  --font-display: "Archivo", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, sans-serif;
+
+  /* ── Geometría: canto vivo ── */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-full: 999px;
+
+  /* ── Sombra sólida y desplazada, SIN blur: es tinta corrida, no luz ──
+     En pantalla de 5-6" la de 8px del sitio se come el margen: aquí el
+     máximo es 4px. Ver F1 / D-8 del plan. */
+  --shadow-solida: 4px 4px 0 var(--color-tinta);
+  --shadow-solida-sm: 2px 2px 0 var(--color-tinta);
+  /* -xs es el estado :active — el botón se hunde sobre su propia sombra. */
+  --shadow-solida-xs: 1px 1px 0 var(--color-tinta);
+  /* Invertidas: sobre tinta, una sombra de tinta sería invisible. */
+  --shadow-solida-inv: 4px 4px 0 var(--color-papel);
+  --shadow-solida-inv-xs: 1px 1px 0 var(--color-papel);
+
+  /* ══════════════════════════════════════════════════════════════════
+     ALIAS TEMPORALES — Material 3 remapeado sobre la paleta nueva.
+
+     Existen para que las ~100 pantallas adopten papel/tinta/verde SIN
+     editar un solo .tsx. Son andamio, no sistema: F0b los va retirando
+     conforme migra cada pantalla a los nombres de arriba, y este bloque
+     debe quedar vacío al cerrar F0b.
+
+     Varios de estos (error, background, accent, secondary...) vivían en
+     tailwind.config.ts, que Tailwind v4 NO carga sin @config. Estaban
+     muertos: 73 usos de *-error no generaban CSS y los banners de error
+     de KYCScreen y Home se renderizaban sin color. Declararlos aquí es
+     lo que los revive.
+     ══════════════════════════════════════════════════════════════════ */
+  --color-primary: var(--color-verde);
+  --color-primary-container: var(--color-verde-suave);
+  --color-on-primary-container: var(--color-tinta);
+  --color-on-primary: var(--color-papel);
+  --color-primary-fixed: var(--color-verde-suave);
+
+  --color-surface: var(--color-papel);
+  --color-on-surface: var(--color-tinta);
+  --color-on-surface-variant: var(--color-gris);
+  --color-background: var(--color-fondo);
+
+  --color-outline: var(--color-gris-2);
+  --color-outline-variant: var(--color-linea);
+
+  --color-surface-container-lowest: var(--color-papel);
+  --color-surface-container-low: var(--color-fondo);
+  --color-surface-container: var(--color-fondo);
+  --color-surface-container-high: var(--color-linea-suave);
+  --color-surface-container-highest: var(--color-linea);
+  --color-surface-variant: var(--color-linea-suave);
+
+  --color-error: var(--color-rojo);
+  --color-accent: var(--color-verde-brillo);
+  --color-secondary: var(--color-gris);
+  --color-secondary-container: var(--color-linea-suave);
+
+  --font-headline: "Archivo", system-ui, sans-serif;
+  --font-label: "Archivo", system-ui, sans-serif;
+}
+
+@layer base {
+  .material-symbols-outlined {
+    /* font-family y 'liga' venían del CSS del CDN de Google. Al empaquetar
+       la fuente hay que declararlos aquí: sin la ligadura, el nombre del
+       icono se dibuja como texto. */
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+  }
+}
+
+body {
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  font-variation-settings: "wdth" 100;
+  color: var(--color-tinta);
+  background-color: var(--color-fondo);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  /* Toda cifra de dinero va aquí: sin esto los saldos cambian de ancho al
+     actualizarse y el número "baila". */
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+}
