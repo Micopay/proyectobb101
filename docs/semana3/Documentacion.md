@@ -119,7 +119,7 @@ Cada intercambio queda registrado en la red con su estado (bloqueado, completado
 
 ## 4. Bloqueos y siguiente paso
 
-- **Decisión de la billetera:** smart wallets con passkeys o Pollar. Bloquea el diseño del onboarding y del respaldo de la llave. La [investigación de billeteras](InvestigacionBilleteras.md) responde las dudas abiertas y recomienda passkeys para el MVP; falta confirmarlo con una prueba en Android.
+- **Decisión de la billetera:** smart wallets con passkeys o Pollar. Bloquea el diseño del onboarding y del respaldo de la llave. La [investigación de billeteras](InvestigacionBilleteras.md) responde las dudas abiertas. Advierte que una passkey no firma transacciones de Stellar por sí sola (solo autoriza llamadas a contratos desde una cuenta `C...`) y que Trustless Work no ha implementado firmas con passkey. Ni Alberto Chávez (experto en Stellar) ni José Alfredo Román Cruz recomiendan las passkeys por ahora. Se propone mantener la llave actual en el MVP, mejorar su respaldo y dejar las passkeys para después, condicionadas a pruebas en testnet.
 - **Publicar el front en Vercel** para que se pueda ver sin instalar nada.
 - **Completar un intercambio de prueba con dos cuentas** (usuario y agente con liquidez cerca) para documentar las pantallas que van de la confirmación al intercambio completado. En la prueba del 15 de octubre no había agentes disponibles para $500 MXN.
 - **Historial del comercio en la red:** hoy se calcula en la base de datos. El MVP pide llevarlo a Stellar.
