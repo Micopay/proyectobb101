@@ -113,7 +113,7 @@ Cada intercambio queda registrado en la red con su estado (bloqueado, completado
 | Eric Mota Tejeda | [@ericmt-98](https://github.com/ericmt-98) | Autor del prototipo en el que se basa el front y del contrato de escrow. Ordenó el front en `frontend/` para que se pueda ejecutar y redactó la decisión técnica. |
 | Raúl Vallejo | [@vallejoraul08-debug](https://github.com/vallejoraul08-debug) | [pendiente] |
 | Anna Medina | [@annapats](https://github.com/annapats) | Integró en el repositorio la documentación de la semana 3, las capturas de la app Android en testnet, el README y el front. |
-| José Alfredo Román Cruz | [pendiente] | [pendiente] |
+| José Alfredo Román Cruz | [@josealfredo79](https://github.com/josealfredo79) | Se integró al equipo esta semana. Probó la app Android en testnet hasta el inicio de sesión y la pantalla de inicio, verificó las instrucciones del README y revisó la documentación de la semana 3 contra el Product Blueprint. |
 
 ---
 
