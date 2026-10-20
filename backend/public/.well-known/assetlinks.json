@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.micopay.app",
+      "sha256_cert_fingerprints": [
+        "TODO: replace with your SHA-256 signing certificate fingerprint. (e.g. AB:CD:EF:...)"
+      ]
+    }
+  }
+]
