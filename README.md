@@ -1,5 +1,7 @@
 # MicoPay
 
+> **Estado:** Program archive. Entregables históricos del programa BB101, conectados a Stellar Testnet. **Custodia:** las llaves se guardan en el dispositivo del usuario. El desarrollo activo está en [micopay-protocol](https://github.com/Micopay/micopay-protocol).
+
 ## Requisitos
 
 - Node.js 20 o superior (probado con Node 22)
